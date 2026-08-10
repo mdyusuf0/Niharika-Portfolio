@@ -6,8 +6,8 @@ import { heroContent, personalInfo, socialLinks } from '../data/portfolioData';
 
 const Hero = () => {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false); // Default to unmuted so it plays with sound
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true); // Default to muted so browsers allow instant autoplay
 
   useEffect(() => {
     AOS.init({
@@ -15,6 +15,9 @@ const Hero = () => {
       once: true,
       easing: 'ease-out'
     });
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => setIsPlaying(false));
+    }
   }, []);
 
   const toggleVideo = (e) => {
@@ -35,12 +38,12 @@ const Hero = () => {
       {/* Background Video */}
       <video
         ref={videoRef}
+        autoPlay
         loop
         muted={isMuted}
         playsInline
         preload="auto"
-        className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-0 transition-opacity duration-1000"
-        onLoadedData={(e) => e.target.classList.remove('opacity-0')}
+        className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-70 transition-opacity duration-700"
       >
         <source src={heroVideo} type="video/mp4" />
         Your browser does not support the video tag.

@@ -6,7 +6,7 @@ import { projects } from '../data/portfolioData';
 const VideoCard = ({ project, onClick }) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true); // Show video frame by default
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -57,21 +57,14 @@ const VideoCard = ({ project, onClick }) => {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         onLoadedData={() => setIsLoaded(true)}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-          isLoaded ? 'opacity-70 group-hover:opacity-100' : 'opacity-0'
-        }`}
+        onLoadedMetadata={() => setIsLoaded(true)}
+        onCanPlay={() => setIsLoaded(true)}
+        className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity duration-500"
       >
         <source src={project.videoUrl} type="video/mp4" />
       </video>
-
-      {/* Loading Skeleton */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-85 group-hover:opacity-75 transition-opacity duration-500" />
@@ -129,6 +122,29 @@ const VideoModal = ({ project, onClose }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Attempt smooth autoplay with fallback for browser autoplay policies
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+        setIsLoading(false);
+      }).catch(() => {
+        // If unmuted autoplay is blocked by browser, mute and retry
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+          videoRef.current.play().then(() => {
+            setIsPlaying(true);
+            setIsLoading(false);
+          }).catch((err) => {
+            console.log('Autoplay blocked:', err);
+            setIsLoading(false);
+          });
+        }
+      });
+    }
+  }, []);
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -157,6 +173,7 @@ const VideoModal = ({ project, onClose }) => {
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      setIsLoading(false);
     }
   };
 
@@ -200,9 +217,12 @@ const VideoModal = ({ project, onClose }) => {
           ref={videoRef}
           autoPlay
           playsInline
+          preload="auto"
           muted={isMuted}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onLoadedData={() => setIsLoading(false)}
+          onCanPlay={() => setIsLoading(false)}
           onWaiting={() => setIsLoading(true)}
           onPlaying={() => {
             setIsLoading(false);
