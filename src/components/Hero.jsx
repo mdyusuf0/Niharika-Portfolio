@@ -6,8 +6,8 @@ import { heroContent, personalInfo, socialLinks } from '../data/portfolioData';
 
 const Hero = () => {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true); // Default to muted so browsers allow instant autoplay
+  const [isPlaying, setIsPlaying] = useState(false); // Video starts paused on initial visit
+  const [isMuted, setIsMuted] = useState(false); // Sound is always enabled when video plays
 
   useEffect(() => {
     AOS.init({
@@ -15,9 +15,6 @@ const Hero = () => {
       once: true,
       easing: 'ease-out'
     });
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => setIsPlaying(false));
-    }
   }, []);
 
   const toggleVideo = (e) => {
@@ -27,25 +24,9 @@ const Hero = () => {
         videoRef.current.muted = false;
         setIsMuted(false);
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      } else if (isMuted) {
-        // If playing but muted, unmute audio so user hears sound!
-        videoRef.current.muted = false;
-        setIsMuted(false);
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
-      }
-    }
-  };
-
-  const toggleSoundOnly = (e) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      const nextMuted = !isMuted;
-      videoRef.current.muted = nextMuted;
-      setIsMuted(nextMuted);
-      if (!nextMuted && videoRef.current.paused) {
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
   };
@@ -55,7 +36,6 @@ const Hero = () => {
       {/* Background Video */}
       <video
         ref={videoRef}
-        autoPlay
         loop
         muted={isMuted}
         playsInline
@@ -178,54 +158,29 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Right Side: Play Video & Audio Toggle Buttons */}
+        {/* Right Side: Play Video Button */}
         <div 
           data-aos="zoom-in"
           data-aos-delay="600"
-          className="mt-8 md:mt-0 flex flex-row items-center gap-6 cursor-pointer self-start md:self-auto"
+          className="mt-8 md:mt-0 flex flex-row md:flex-col items-center gap-2 md:gap-3 cursor-pointer group self-start md:self-auto"
+          onClick={toggleVideo}
         >
-          {/* Play/Pause Reel Button */}
-          <div 
-            onClick={toggleVideo}
-            className="flex flex-col items-center gap-2 group cursor-pointer"
-          >
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/30 bg-black/40 backdrop-blur-md flex justify-center items-center group-hover:scale-110 group-hover:bg-[#ff2a2a] transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_40px_rgba(255,42,42,0.6)]">
-              {!isPlaying ? (
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                </svg>
-              )}
-            </div>
-            <span className="text-white text-[10px] md:text-xs font-bold tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-              {!isPlaying ? "Play Reel" : "Pause"}
-            </span>
+          <div className="w-12 h-12 md:w-20 md:h-20 rounded-full border border-white/30 bg-black/40 backdrop-blur-md flex justify-center items-center group-hover:scale-110 group-hover:bg-[#ff2a2a] transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_40px_rgba(255,42,42,0.6)]">
+            {!isPlaying ? (
+              // Play Icon
+              <svg className="w-5 h-5 md:w-8 md:h-8 text-white ml-0.5 md:ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            ) : (
+              // Pause Icon
+              <svg className="w-5 h-5 md:w-8 md:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            )}
           </div>
-
-          {/* Sound Toggle Button */}
-          <div 
-            onClick={toggleSoundOnly}
-            className="flex flex-col items-center gap-2 group cursor-pointer"
-          >
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/30 bg-black/40 backdrop-blur-md flex justify-center items-center group-hover:scale-110 group-hover:bg-[#ff2a2a] transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_40px_rgba(255,42,42,0.6)]">
-              {isMuted ? (
-                <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-              )}
-            </div>
-            <span className="text-white text-[10px] md:text-xs font-bold tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-              {isMuted ? "Sound Off" : "Sound On"}
-            </span>
-          </div>
+          <span className="text-white text-[10px] md:text-xs font-bold tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity">
+            {!isPlaying ? "Play Reel" : "Pause"}
+          </span>
         </div>
       </div>
 
