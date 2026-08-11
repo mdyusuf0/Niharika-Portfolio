@@ -57,6 +57,7 @@ const VideoCard = ({ project, onClick }) => {
         muted
         loop
         playsInline
+        webkit-playsinline="true"
         preload="auto"
         onLoadedData={() => setIsLoaded(true)}
         onLoadedMetadata={() => setIsLoaded(true)}
@@ -217,6 +218,7 @@ const VideoModal = ({ project, onClose }) => {
           ref={videoRef}
           autoPlay
           playsInline
+          webkit-playsinline="true"
           preload="auto"
           muted={isMuted}
           onTimeUpdate={handleTimeUpdate}

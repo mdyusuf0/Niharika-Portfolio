@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import heroVideo from '../assets/hero video/niharika-hero.mp4';
+import heroVideo from '../assets/hero/niharika-hero.mp4';
 import { heroContent, personalInfo, socialLinks } from '../data/portfolioData';
 
 const Hero = () => {
@@ -39,6 +39,7 @@ const Hero = () => {
         loop
         muted={isMuted}
         playsInline
+        webkit-playsinline="true"
         preload="auto"
         className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-70 transition-opacity duration-700"
       >
