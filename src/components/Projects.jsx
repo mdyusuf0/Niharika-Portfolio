@@ -29,7 +29,8 @@ const VideoCard = ({ project, onClick }) => {
   }, []);
 
   const handleMouseEnter = () => {
-    if (videoRef.current && isVisible) {
+    if (videoRef.current) {
+      videoRef.current.preload = 'auto';
       videoRef.current.play().catch((err) => console.log("Play interrupted", err));
     }
   };
@@ -51,18 +52,19 @@ const VideoCard = ({ project, onClick }) => {
       onMouseLeave={handleMouseLeave}
       onClick={() => onClick(project)}
     >
-      {/* Video element */}
+      {/* Video element with instant JPEG poster image */}
       <video
         ref={videoRef}
         muted
         loop
         playsInline
         webkit-playsinline="true"
-        preload="auto"
+        preload="none"
+        poster={project.posterUrl}
         onLoadedData={() => setIsLoaded(true)}
         onLoadedMetadata={() => setIsLoaded(true)}
         onCanPlay={() => setIsLoaded(true)}
-        className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:opacity-100 transition-opacity duration-500"
+        className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity duration-500"
       >
         <source src={project.videoUrl} type="video/mp4" />
       </video>
@@ -220,6 +222,7 @@ const VideoModal = ({ project, onClose }) => {
           playsInline
           webkit-playsinline="true"
           preload="auto"
+          poster={project.posterUrl}
           muted={isMuted}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
