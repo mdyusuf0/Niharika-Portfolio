@@ -1,13 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import heroVideo from '../assets/hero/niharika-hero.mp4';
 import { heroContent, personalInfo, socialLinks } from '../data/portfolioData';
 
 const Hero = () => {
   const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false); // Video starts paused on initial visit
-  const [isMuted, setIsMuted] = useState(false); // Sound is always enabled when video plays
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     AOS.init({
@@ -18,12 +17,25 @@ const Hero = () => {
   }, []);
 
   const toggleVideo = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     if (videoRef.current) {
       if (videoRef.current.paused) {
         videoRef.current.muted = false;
         setIsMuted(false);
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch((err) => {
+              console.log("Unmuted play blocked by browser policy, attempting fallback:", err);
+              if (videoRef.current) {
+                videoRef.current.muted = true;
+                setIsMuted(true);
+                videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+              }
+            });
+        }
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -40,10 +52,11 @@ const Hero = () => {
         muted={isMuted}
         playsInline
         webkit-playsinline="true"
+        crossOrigin="anonymous"
         preload="auto"
         className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-70 transition-opacity duration-700"
       >
-        <source src={heroVideo} type="video/mp4" />
+        <source src="/videos/hero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 

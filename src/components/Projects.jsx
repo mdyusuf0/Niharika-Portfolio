@@ -59,6 +59,7 @@ const VideoCard = ({ project, onClick }) => {
         loop
         playsInline
         webkit-playsinline="true"
+        crossOrigin="anonymous"
         preload="none"
         poster={project.posterUrl}
         onLoadedData={() => setIsLoaded(true)}
@@ -221,6 +222,7 @@ const VideoModal = ({ project, onClose }) => {
           autoPlay
           playsInline
           webkit-playsinline="true"
+          crossOrigin="anonymous"
           preload="auto"
           poster={project.posterUrl}
           muted={isMuted}
